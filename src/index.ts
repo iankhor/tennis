@@ -84,3 +84,181 @@ const serializeData = (data: string[], dataSeperator: string): MatchData[] => {
 }
 
 const x = serializeData(cleansedData, 'Match')
+
+enum GameState {
+	InPlay = 'P',
+	Game = 'G',
+	Deuce = 'D',
+	Advantage = 'A',
+}
+
+type GameResult = {
+	gameId: number
+	player1: number
+	player2: number
+	result: GameState
+}
+
+type MatchResult = {
+	matchId: number
+	score: GameResult[]
+}
+
+const MAX_POINTS_PER_GAME_WITHOUT_TIEBREAK = 4
+const TIEBREAK_POINT_THRESHOLD = 3
+
+const isTieBreaker = (p1Score, p2Score) => p1Score >= TIEBREAK_POINT_THRESHOLD && p2Score >= TIEBREAK_POINT_THRESHOLD
+
+const isGameWon = (p1Score, p2Score) => {
+	if (isTieBreaker(p1Score, p2Score)) {
+		return Math.abs(p1Score - p2Score) === 2
+	} else {
+		return p1Score === MAX_POINTS_PER_GAME_WITHOUT_TIEBREAK || p2Score === MAX_POINTS_PER_GAME_WITHOUT_TIEBREAK
+	}
+}
+
+const gameWinner = (p1Score, p2Score) => (isGameWon(p1Score, p2Score) ? (p1Score > p2Score ? 0 : 1) : null)
+
+const player0FakerPoints = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+const player1FakerPoints = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+
+const points = [...player0FakerPoints, ...player1FakerPoints, ...player0FakerPoints]
+
+const findGameEndPoint = (points) => {
+	let px = points
+
+	const match = px.reduce(
+		(acc, currentPt: number, index): any => {
+			let player0Score = acc.player0
+			let player1Score = acc.player1
+			let indexScore = [...acc.indexScore]
+
+			if (currentPt === 0) {
+				player0Score = player0Score + 1
+			} else {
+				player1Score = player1Score + 1
+			}
+
+			const isWon = isGameWon(player0Score, player1Score)
+			if (isWon) {
+				player0Score = 0
+				player1Score = 0
+				indexScore = [...acc.indexScore, index + 1]
+			}
+
+			return {
+				player0: player0Score,
+				player1: player1Score,
+				gameWinner: gameWinner(player0Score, player1Score),
+				indexScore,
+			}
+		},
+		{
+			player0: 0,
+			player1: 0,
+			indexScore: [0],
+		}
+	)
+
+	return match
+}
+
+const calculateGameSummary = (points) =>
+	points.reduce(
+		(acc, currentPt: number): any => {
+			let player0Score = acc.player0
+			let player1Score = acc.player1
+
+			if (currentPt === 0) {
+				player0Score = player0Score + 1
+			} else {
+				player1Score = player1Score + 1
+			}
+
+			const isWon = isGameWon(player0Score, player1Score)
+
+			return {
+				player0: player0Score,
+				player1: player1Score,
+				gameWinner: gameWinner(player0Score, player1Score),
+				isGameWon: isWon,
+			}
+		},
+		{
+			player0: 0,
+			player1: 0,
+			gameWinner: null,
+			isGameWon: false,
+		}
+	)
+
+const GAMES_FOR_SET_WIN = 6
+
+const isSetWon = (player0Set, player1Set) => player0Set === GAMES_FOR_SET_WIN || player1Set === GAMES_FOR_SET_WIN
+
+const findSetEndGame = (gamesSummary) => {
+	return gamesSummary.reduce(
+		(acc, currentGameSummary, index): any => {
+			let player0Sets = acc.player0Sets
+			let player1Sets = acc.player1Sets
+			let indexGames = [...acc.indexGames]
+
+			if (currentGameSummary.gameWinner === 0) {
+				player0Sets = player0Sets + 1
+			}
+			if (currentGameSummary.gameWinner === 1) {
+				player1Sets = player1Sets + 1
+			}
+
+			const isWon = isSetWon(player0Sets, player1Sets)
+			if (isWon) {
+				player0Sets = 0
+				player1Sets = 0
+				indexGames = [...acc.indexGames, index + 1]
+			}
+
+			return {
+				player0Sets,
+				player1Sets,
+				indexGames,
+			}
+		},
+		{
+			player0Sets: 0,
+			player1Sets: 0,
+			indexGames: [0],
+		}
+	)
+}
+
+const gamesPoints = findGameEndPoint(points).indexScore.map((i, index, arr) => points.slice(i, arr[index + 1]))
+const gamesSummary = gamesPoints.map((gp) => calculateGameSummary(gp))
+const setPoints = findSetEndGame(gamesSummary).indexGames.map((i, index, arr) => gamesSummary.slice(i, arr[index + 1]))
+
+const setSummary = setPoints.map((set) => {
+	const player0Sets = set.reduce((acc, set) => (set.gameWinner === 0 ? acc + 1 : acc), 0)
+	const player1Sets = set.reduce((acc, set) => (set.gameWinner === 1 ? acc + 1 : acc), 0)
+	let setWinner
+
+	const isWon = isSetWon(player0Sets, player1Sets)
+	if (isWon) {
+		setWinner = player0Sets > player1Sets ? 0 : 1
+	}
+
+	return { player0: player0Sets, player1: player1Sets, setWinner, isSetWon: isWon }
+})
+
+const MIN_SETS_FOR_MATCH_WIN = 2
+
+const setWonByPlayer0 = setSummary.reduce((setsWon, set) => (set.setWinner === 0 ? setsWon + 1 : setsWon), 0)
+const setWonByPlayer1 = setSummary.reduce((setsWon, set) => (set.setWinner === 1 ? setsWon + 1 : setsWon), 0)
+
+const isMatchCompleted = (setWonByPlayer0, setWonByPlayer1) =>
+	setWonByPlayer0 >= MIN_SETS_FOR_MATCH_WIN || setWonByPlayer1 >= MIN_SETS_FOR_MATCH_WIN
+
+const matchWinner = (setWonByPlayer0, setWonByPlayer1) =>
+	isMatchCompleted(setWonByPlayer0, setWonByPlayer1) ? (setWonByPlayer0 >= MIN_SETS_FOR_MATCH_WIN ? 0 : 1) : undefined
+
+console.log(gamesSummary)
+console.log(setSummary)
+console.info('matchWinnder', matchWinner(setWonByPlayer0, setWonByPlayer1))

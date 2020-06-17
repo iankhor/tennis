@@ -10,7 +10,14 @@
 		"esModuleInterop": true,
 		"resolveJsonModule": true,
 		"noImplicitAny": false, //to be removed
-		"downlevelIteration": true
+		"downlevelIteration": true,
+		"baseUrl": "./",
+		"paths": {
+			"games/*": ["src/lib/games/*"],
+			"sets/*": ["src/lib/sets/*"],
+			"matches/*": ["src/lib/matches/*"],
+			"src/*": ["src/*"]
+		}
 	},
 	"exclude": ["node_modules", "./src/**/*.test.ts", "./src/**/*.test.tsx", "testlib", "jest.config.js", "build"]
 }

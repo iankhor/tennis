@@ -5,8 +5,8 @@
 	"license": "MIT",
 	"scripts": {
 		"start:build": "tsc -w",
-		"start:watch": "nodemon ./build/index.js",
-		"dev": "tsc && node ./build/index.js",
+		"start:watch": "nodemon ./build/run.js",
+		"dev": "tsc && node ./build/run.js",
 		"start": "concurrently npm:start:*",
 		"test": "tsc && jest --watch"
 	},

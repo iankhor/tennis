@@ -64,5 +64,6 @@ inquirer
 	])
 	.then((answers) => {
 		answers['queries']['match'].forEach((id) => console.info(getMatchResult(id, summarisedTennisDraws)))
+		// BUG HERE: must provide summarisedTennisDraws with draws that player C is involed in
 		answers['queries']['player'].forEach((name) => console.info(getGamesWon(name, summarisedTennisDraws)))
 	})

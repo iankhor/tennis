@@ -41,9 +41,9 @@ export const getMatchResult = (matchId, summarisedDraw) => {
 	const winnerPlayer = matchWinner(player0.sets, player1.sets)
 
 	const winnerSets = winnerPlayer === 0 ? player0.sets : player1.sets
-	const runenrUpSets = winnerPlayer === 0 ? player1.sets : player0.sets
+	const runnerUpSets = winnerPlayer === 0 ? player1.sets : player0.sets
 	const winnerName = winnerPlayer === 0 ? player0.name : player1.name
 	const runenrUpName = winnerPlayer === 0 ? player1.name : player0.name
 
-	return `${winnerName} defeated ${runenrUpName}\n ${winnerSets} sets to ${runenrUpSets} \n`
+	return `${winnerName} defeated ${runenrUpName}\n ${winnerSets} sets to ${runnerUpSets} \n`
 }

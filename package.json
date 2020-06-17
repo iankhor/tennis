@@ -16,6 +16,7 @@
 	},
 	"dependencies": {
 		"@types/inquirer": "^6.5.0",
+		"@types/jest": "^26.0.0",
 		"concurrently": "^5.2.0",
 		"global": "^4.4.0",
 		"inquirer": "^7.2.0",

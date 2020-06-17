@@ -104,7 +104,7 @@ type MatchResult = {
 	score: GameResult[]
 }
 
-const MAX_POINTS_PER_GAME_WITHOUT_TIEBREAK = 4
+const REGULAR_GAME_MAX_POINTS = 4
 const TIEBREAK_POINT_THRESHOLD = 3
 
 const isTieBreaker = (p1Score, p2Score) => p1Score >= TIEBREAK_POINT_THRESHOLD && p2Score >= TIEBREAK_POINT_THRESHOLD
@@ -113,7 +113,7 @@ const isGameWon = (p1Score, p2Score) => {
 	if (isTieBreaker(p1Score, p2Score)) {
 		return Math.abs(p1Score - p2Score) === 2
 	} else {
-		return p1Score === MAX_POINTS_PER_GAME_WITHOUT_TIEBREAK || p2Score === MAX_POINTS_PER_GAME_WITHOUT_TIEBREAK
+		return p1Score === REGULAR_GAME_MAX_POINTS || p2Score === REGULAR_GAME_MAX_POINTS
 	}
 }
 
@@ -163,7 +163,7 @@ const findGameEndPoint = (points) => {
 	return match
 }
 
-const calculateGameSummary = (points) =>
+const summariseGame = (points) =>
 	points.reduce(
 		(acc, currentPt: number): any => {
 			let player0Score = acc.player0
@@ -193,6 +193,7 @@ const calculateGameSummary = (points) =>
 	)
 
 const GAMES_FOR_SET_WIN = 6
+const MIN_SETS_FOR_MATCH_WIN = 2
 
 const isSetWon = (player0Set, player1Set) => player0Set === GAMES_FOR_SET_WIN || player1Set === GAMES_FOR_SET_WIN
 
@@ -232,23 +233,18 @@ const findSetEndGame = (gamesSummary) => {
 }
 
 const gamesPoints = findGameEndPoint(points).indexScore.map((i, index, arr) => points.slice(i, arr[index + 1]))
-const gamesSummary = gamesPoints.map((gp) => calculateGameSummary(gp))
+const gamesSummary = gamesPoints.map((gp) => summariseGame(gp))
 const setPoints = findSetEndGame(gamesSummary).indexGames.map((i, index, arr) => gamesSummary.slice(i, arr[index + 1]))
+
+const setWinner = (player0Sets, player1Sets) =>
+	isSetWon(player0Sets, player1Sets) ? (player0Sets > player1Sets ? 0 : 1) : null
 
 const setSummary = setPoints.map((set) => {
 	const player0Sets = set.reduce((acc, set) => (set.gameWinner === 0 ? acc + 1 : acc), 0)
 	const player1Sets = set.reduce((acc, set) => (set.gameWinner === 1 ? acc + 1 : acc), 0)
-	let setWinner
 
-	const isWon = isSetWon(player0Sets, player1Sets)
-	if (isWon) {
-		setWinner = player0Sets > player1Sets ? 0 : 1
-	}
-
-	return { player0: player0Sets, player1: player1Sets, setWinner, isSetWon: isWon }
+	return { player0: player0Sets, player1: player1Sets, setWinner: setWinner(player0Sets, player1Sets), isSetWon: isWon }
 })
-
-const MIN_SETS_FOR_MATCH_WIN = 2
 
 const setWonByPlayer0 = setSummary.reduce((setsWon, set) => (set.setWinner === 0 ? setsWon + 1 : setsWon), 0)
 const setWonByPlayer1 = setSummary.reduce((setsWon, set) => (set.setWinner === 1 ? setsWon + 1 : setsWon), 0)

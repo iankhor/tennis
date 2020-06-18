@@ -4,6 +4,7 @@
 	"main": "run.js",
 	"license": "MIT",
 	"scripts": {
+		"build:watch": "tsc -w",
 		"start": "tsc && node ./build/run.js",
 		"test": "tsc && jest --watch"
 	},

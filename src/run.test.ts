@@ -20,5 +20,5 @@ test('getting the match result and games won and loss in tournament', async () =
 
 	expect(result).toMatch(new RegExp('Person X defeated Person Y', 'g'))
 	expect(result).toMatch(new RegExp('2 sets to 1', 'g'))
-	expect(result).toMatch(new RegExp('Games: Won - 12, Loss - 6', 'g'))
+	expect(result).toMatch(new RegExp('Person X Stats: Games Won - 12, Games Loss - 6', 'g'))
 })

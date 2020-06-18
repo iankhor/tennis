@@ -2,14 +2,15 @@ import { MIN_SETS_FOR_MATCH_WIN } from './../../config'
 
 import { categorisePointsByGames, summariseGames, gamesWonByPlayerId } from './../games/utils'
 import { summariseSets, categoriseGamesBySets, setsWonByPlayer } from './../sets/utils'
+import { RawScore, Set, MatchSummary, MatchId, SummarisedMatchData, Player } from '../types'
 
-const isMatchCompleted = (setWonByPlayer0, setWonByPlayer1) =>
+const isMatchCompleted = (setWonByPlayer0: Set, setWonByPlayer1: Set): boolean =>
 	setWonByPlayer0 >= MIN_SETS_FOR_MATCH_WIN || setWonByPlayer1 >= MIN_SETS_FOR_MATCH_WIN
 
-export const matchWinner = (setWonByPlayer0, setWonByPlayer1) =>
-	isMatchCompleted(setWonByPlayer0, setWonByPlayer1) ? (setWonByPlayer0 >= MIN_SETS_FOR_MATCH_WIN ? 0 : 1) : undefined
+const matchWinner = (setWonByPlayer0: Set, setWonByPlayer1: Set): Player.One | Player.Two | null =>
+	isMatchCompleted(setWonByPlayer0, setWonByPlayer1) ? (setWonByPlayer0 >= MIN_SETS_FOR_MATCH_WIN ? 0 : 1) : null
 
-export const summariseMatch = (points) => {
+export const summariseMatch = (points: RawScore[]): MatchSummary => {
 	const categorisedPoints = categorisePointsByGames(points)
 	const summarisedGames = summariseGames(categorisedPoints)
 
@@ -35,8 +36,8 @@ export const summariseMatch = (points) => {
 	}
 }
 
-export const getMatchResult = (matchId, summarisedDraw) => {
-	const { player0, player1 } = summarisedDraw.find((d) => d.matchId === matchId)
+export const getMatchResult = (matchId: MatchId, summarisedDraw: SummarisedMatchData[]) => {
+	const { player0, player1 } = summarisedDraw.find((d) => d.matchId === matchId) as SummarisedMatchData
 
 	const winnerPlayer = matchWinner(player0.sets, player1.sets)
 

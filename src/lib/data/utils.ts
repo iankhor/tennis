@@ -1,30 +1,17 @@
-type MatchIndices = number[]
+import { MatchIndices, RawMatchData, MatchPlayers, FileData } from './../types'
 
-type MatchData = {
-	matchId: string
-	player0: { name: string }
-	player1: { name: string }
-	pointsProgression: string[]
-}
+export const cleanseData = (data: string): string[] => data.split('\r\n').filter(Boolean)
 
-type MatchUpDescription = string
-type MatchPlayers = {
-	player0Name: string
-	player1Name: string
-}
-
-export const cleanseData = (data: string) => data.split('\r\n').filter(Boolean)
-
-export const getPlayersNames = (players: MatchUpDescription): MatchPlayers => {
-	const x = players.split('vs')
+export const getPlayersNames = (players: string): MatchPlayers => {
+	const playerNames = players.split('vs')
 
 	return {
-		player0Name: x[0].trim(),
-		player1Name: x[1].trim(),
+		player0Name: playerNames[0].trim(),
+		player1Name: playerNames[1].trim(),
 	}
 }
 
-export const serializeData = (data: string[], dataSeperator: string): MatchData[] => {
+export const serializeData = (data: FileData, dataSeperator: string): RawMatchData[] => {
 	let matchIndices = [] as MatchIndices
 	data.forEach((r: string, index: number) => {
 		if (r.match(new RegExp(dataSeperator))) matchIndices.push(index)

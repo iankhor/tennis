@@ -57,11 +57,11 @@ export const categorisePointsByGames = (points) => {
 
 const summariseGame = (points) =>
 	points.reduce(
-		(acc, currentPt: number): any => {
+		(acc, currentPt: string): any => {
 			let player0Score = acc.player0
 			let player1Score = acc.player1
 
-			if (currentPt === 0) {
+			if (currentPt === '0') {
 				player0Score = player0Score + 1
 			} else {
 				player1Score = player1Score + 1
@@ -86,19 +86,24 @@ const summariseGame = (points) =>
 
 export const summariseGames = (categorisedPoints) => categorisedPoints.map((cp) => summariseGame(cp))
 
-export const gamessWonByPlayer = (id, games) =>
+export const gamesWonByPlayerId = (id, games) =>
 	games.reduce((gamesWon, games) => (games.gameWinner === id ? gamesWon + 1 : gamesWon), 0)
 
-export const getGamesWon = (name, draw) => {
+// move to draw utils.ts
+export const gamesWonByPlayerName = (name, draw) => {
 	return draw.reduce((gamesWon, draw) => {
-		let games = 0
+		let win = 0
 		if (draw.player0.name === name) {
-			games = gamesWon + draw.player0.games
+			win = gamesWon + draw.player0.games
 		}
 		if (draw.player1.name === name) {
-			games = gamesWon + draw.player1.games
+			win = gamesWon + draw.player1.games
 		}
 
-		return `\n ${games} [INSERT LOSS COUNT]`
+		return win
 	}, 0)
+}
+
+export const totalGamesPlayed = (draw) => {
+	return draw.reduce((count, draw) => count + draw.player0.games + draw.player1.games, 0)
 }

@@ -1,6 +1,6 @@
 import { MIN_SETS_FOR_MATCH_WIN } from './../../config'
 
-import { categorisePointsByGames, summariseGames, gamessWonByPlayer } from './../games/utils'
+import { categorisePointsByGames, summariseGames, gamesWonByPlayerId } from './../games/utils'
 import { summariseSets, categoriseGamesBySets, setsWonByPlayer } from './../sets/utils'
 
 const isMatchCompleted = (setWonByPlayer0, setWonByPlayer1) =>
@@ -16,8 +16,8 @@ export const summariseMatch = (points) => {
 	const categorisedSets = categoriseGamesBySets(summarisedGames)
 	const summarisedSets = summariseSets(categorisedSets)
 
-	const gamesWonByPlayer0 = gamessWonByPlayer(0, summarisedGames)
-	const gamesWonByPlayer1 = gamessWonByPlayer(1, summarisedGames)
+	const gamesWonByPlayer0 = gamesWonByPlayerId(0, summarisedGames)
+	const gamesWonByPlayer1 = gamesWonByPlayerId(1, summarisedGames)
 
 	const setWonByPlayer0 = setsWonByPlayer(0, summarisedSets)
 	const setWonByPlayer1 = setsWonByPlayer(1, summarisedSets)
@@ -40,10 +40,15 @@ export const getMatchResult = (matchId, summarisedDraw) => {
 
 	const winnerPlayer = matchWinner(player0.sets, player1.sets)
 
-	const winnerSets = winnerPlayer === 0 ? player0.sets : player1.sets
-	const runnerUpSets = winnerPlayer === 0 ? player1.sets : player0.sets
 	const winnerName = winnerPlayer === 0 ? player0.name : player1.name
-	const runenrUpName = winnerPlayer === 0 ? player1.name : player0.name
+	const winnerSets = winnerPlayer === 0 ? player0.sets : player1.sets
 
-	return `${winnerName} defeated ${runenrUpName}\n ${winnerSets} sets to ${runnerUpSets} \n`
+	const runenrUpName = winnerPlayer === 0 ? player1.name : player0.name
+	const runnerUpSets = winnerPlayer === 0 ? player1.sets : player0.sets
+
+	const completed = isMatchCompleted(player0.sets, player1.sets)
+	const verb = completed ? 'defeated' : 'vs'
+	const matchProgressMessage = completed ? '' : '(Match In Progress) '
+
+	return `${matchProgressMessage}${winnerName} ${verb} ${runenrUpName}\n ${winnerSets} sets to ${runnerUpSets} \n`
 }

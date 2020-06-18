@@ -1,25 +1,20 @@
 {
 	"name": "tennis",
 	"version": "1.0.0",
-	"main": "index.js",
+	"main": "run.js",
 	"license": "MIT",
 	"scripts": {
-		"start:build": "tsc -w",
-		"start:watch": "nodemon ./build/run.js",
-		"dev": "tsc && node ./build/run.js",
-		"start": "concurrently npm:start:*",
+		"start": "tsc && node ./build/run.js",
 		"test": "tsc && jest --watch"
 	},
 	"devDependencies": {
 		"@types/node": "^14.0.13",
-		"nodemon": "^2.0.4",
 		"ts-node": "^8.10.2",
 		"typescript": "^3.9.5"
 	},
 	"dependencies": {
 		"@types/inquirer": "^6.5.0",
 		"@types/jest": "^26.0.0",
-		"concurrently": "^5.2.0",
 		"global": "^4.4.0",
 		"inquirer": "^7.2.0",
 		"inquirer-test": "^2.0.1",

@@ -1,37 +1,18 @@
-import path from 'path'
 import inquirer from 'inquirer'
 import fs from 'fs'
 import { cleanseData, serializeData } from './lib/data/utils'
-import { summariseTennisDraws } from './lib/draws/utils'
+import { matchesForSelection, playersForSelection } from './utils'
+import { summariseTennisDraws, getPlayerTournamentStats, getAllPlayerNames } from './lib/draws/utils'
 import { getMatchResult } from './lib/matches/utils'
-import { getGamesWon } from './lib/games/utils'
+import { DEFAULT_TENNIS_DATA_FILE_PATH } from './config'
 
-const filename = path.resolve(__dirname, '../data', 'full_tournament.txt')
+const filePath = process.argv[2] || DEFAULT_TENNIS_DATA_FILE_PATH
+!process.argv[2] && console.log(`No filepath supplied, using ${DEFAULT_TENNIS_DATA_FILE_PATH}\n`)
 
-const data = fs.readFileSync(filename, { encoding: 'utf-8' })
+const data = fs.readFileSync(filePath, { encoding: 'utf-8' })
 const cleansedData = cleanseData(data)
-
 const tennisDraws = serializeData(cleansedData, 'Match')
-
 const summarisedTennisDraws = summariseTennisDraws(tennisDraws)
-
-const queryMatchChoices = summarisedTennisDraws.map((d) => {
-	return {
-		name: `Score Match ${d.matchId}`,
-		value: d.matchId,
-	}
-})
-
-const allPlayers = [
-	...new Set(summarisedTennisDraws.reduce((acc, current) => [...acc, current.player0.name, current.player1.name], [])),
-]
-
-const queryGamesPlayer = allPlayers.map((p) => {
-	return {
-		name: `Games Player ${p}`,
-		value: p,
-	}
-})
 
 inquirer
 	.prompt([
@@ -39,31 +20,23 @@ inquirer
 			type: 'checkbox',
 			message: 'Select queries for score for a particular match  (You can choose multiple)',
 			name: 'queries.match',
-			choices: [new inquirer.Separator('Query Match'), ...queryMatchChoices],
-			validate: function (answer) {
-				if (answer.length < 1) {
-					return 'You must select at least one query'
-				}
-
-				return true
-			},
+			choices: [new inquirer.Separator('Query Match'), ...matchesForSelection(summarisedTennisDraws)],
 		},
 		{
 			type: 'checkbox',
 			message: 'Select queries games won vs lost for a particular player over the tournament (You can choose multiple)',
 			name: 'queries.player',
-			choices: [new inquirer.Separator('Query Player'), ...queryGamesPlayer],
-			validate: function (answer) {
-				if (answer.length < 1) {
-					return 'You must select at least one query'
-				}
-
-				return true
-			},
+			choices: [new inquirer.Separator('Query Player'), ...playersForSelection(summarisedTennisDraws)],
 		},
 	])
 	.then((answers) => {
-		answers['queries']['match'].forEach((id) => console.info(getMatchResult(id, summarisedTennisDraws)))
-		// BUG HERE: must provide summarisedTennisDraws with draws that player C is involed in
-		answers['queries']['player'].forEach((name) => console.info(getGamesWon(name, summarisedTennisDraws)))
+		const selectedMatches = answers['queries']['match']
+		const selectedPlayers = answers['queries']['player']
+
+		selectedMatches.forEach((id) => console.info(getMatchResult(id, summarisedTennisDraws)))
+		selectedPlayers.forEach((name) => console.info(getPlayerTournamentStats(name, summarisedTennisDraws)))
+
+		if (!selectedMatches.length && !selectedPlayers.length) {
+			console.info('\n Nothing was selected')
+		}
 	})

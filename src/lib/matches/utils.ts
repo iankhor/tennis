@@ -36,7 +36,7 @@ export const summariseMatch = (points: RawScore[]): MatchSummary => {
 	}
 }
 
-export const getMatchResult = (matchId: MatchId, summarisedDraw: SummarisedMatchData[]) => {
+export const getMatchResult = (matchId: MatchId, summarisedDraw: SummarisedMatchData[]): string => {
 	const { player0, player1 } = summarisedDraw.find((d) => d.matchId === matchId) as SummarisedMatchData
 
 	const winnerPlayer = matchWinner(player0.sets, player1.sets)

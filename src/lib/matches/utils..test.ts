@@ -1,2 +1,0 @@
-// summariseMatch
-// getMatchResult

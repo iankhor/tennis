@@ -41,9 +41,9 @@ export type MatchPlayers = {
 }
 
 export type SetEndIncides = {
-	player0Sets: Set
-	player1Sets: Set
-	indexSets: Set[]
+	player0Games: number
+	player1Games: number
+	indexGames: number[]
 }
 
 export type SetSummary = {

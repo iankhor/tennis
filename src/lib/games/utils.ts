@@ -84,7 +84,9 @@ const summariseGame = (points: RawScore[]): GameSummary =>
 	)
 
 export const categorisePointsByGames = (points: RawScore[]): RawScore[][] => {
-	return findGameEndPointIndices(points).indexScore.map((i, index, arr) => points.slice(i, arr[index + 1]))
+	return findGameEndPointIndices(points)
+		.indexScore.map((i, index, arr) => points.slice(i, arr[index + 1]))
+		.filter((x) => x.length)
 }
 
 export const summariseGames = (categorisedPoints: RawScore[][]): GameSummary[] =>

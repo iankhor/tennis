@@ -1,62 +1,62 @@
 import { GAMES_FOR_SET_WIN } from './../../config'
-import { GameSummary, SetSummary, Player, Set, SetEndIncides } from '../types'
+import { GameSummary, SetSummary, Player, Game, SetEndIncides } from '../types'
 
-const setWinner = (player0Sets: Set, player1Sets: Set): Player.One | Player.Two | null =>
-	isSetWon(player0Sets, player1Sets) ? (player0Sets > player1Sets ? 0 : 1) : null
+const setWinner = (player0Games: Game, player1Games: Game): Player.One | Player.Two | null =>
+	isSetWon(player0Games, player1Games) ? (player0Games > player1Games ? 0 : 1) : null
 
-const isSetWon = (player0Set: Set, player1Set: Set): boolean =>
-	player0Set === GAMES_FOR_SET_WIN || player1Set === GAMES_FOR_SET_WIN
+const isSetWon = (player0Games: number, player1Games: number): boolean =>
+	player0Games === GAMES_FOR_SET_WIN || player1Games === GAMES_FOR_SET_WIN
 
 const findSetEndGame = (gamesSummary: GameSummary[]): SetEndIncides => {
 	return gamesSummary.reduce(
 		(acc, currentGameSummary, index): any => {
-			let player0Sets = acc.player0Sets
-			let player1Sets = acc.player1Sets
-			let indexSets = [...acc.indexSets]
+			let player0Games = acc.player0Games
+			let player1Games = acc.player1Games
+			let indexGames = [...acc.indexGames]
 
 			if (currentGameSummary.gameWinner === 0) {
-				player0Sets = player0Sets + 1
+				player0Games = player0Games + 1
 			}
 			if (currentGameSummary.gameWinner === 1) {
-				player1Sets = player1Sets + 1
+				player1Games = player1Games + 1
 			}
 
-			const isWon = isSetWon(player0Sets, player1Sets)
+			const isWon = isSetWon(player0Games, player1Games)
 			if (isWon) {
-				player0Sets = 0
-				player1Sets = 0
-				indexSets = [...acc.indexSets, index + 1]
+				player0Games = 0
+				player1Games = 0
+				indexGames = [...acc.indexGames, index + 1]
 			}
 
 			return {
-				player0Sets,
-				player1Sets,
-				indexSets,
+				player0Games,
+				player1Games,
+				indexGames,
 			}
 		},
 		{
-			player0Sets: 0,
-			player1Sets: 0,
-			indexSets: [0],
+			player0Games: 0,
+			player1Games: 0,
+			indexGames: [0],
 		}
 	)
 }
 
 export const summariseSets = (summaries: GameSummary[][]): SetSummary[] =>
-	summaries.map((set) => {
-		const player0Sets = set.reduce((acc, set) => (set.gameWinner === 0 ? acc + 1 : acc), 0)
-		const player1Sets = set.reduce((acc, set) => (set.gameWinner === 1 ? acc + 1 : acc), 0)
+	summaries.map((games) => {
+		const player0Games = games.reduce((count, game) => (game.gameWinner === 0 ? count + 1 : count), 0)
+		const player1Games = games.reduce((count, game) => (game.gameWinner === 1 ? count + 1 : count), 0)
 
 		return {
-			player0: player0Sets,
-			player1: player1Sets,
-			setWinner: setWinner(player0Sets, player1Sets),
-			isSetWon: isSetWon(player0Sets, player1Sets),
+			player0: player0Games,
+			player1: player1Games,
+			setWinner: setWinner(player0Games, player1Games),
+			isSetWon: isSetWon(player0Games, player1Games),
 		}
 	})
 
 export const categoriseGamesBySets = (summarisedGames: GameSummary[]): GameSummary[][] =>
-	findSetEndGame(summarisedGames).indexSets.map((i, index, arr) => summarisedGames.slice(i, arr[index + 1]))
+	findSetEndGame(summarisedGames).indexGames.map((i, index, arr) => summarisedGames.slice(i, arr[index + 1]))
 
-export const setsWonByPlayer = (id: Player.One | Player.Two, set) =>
+export const setsWonByPlayer = (id: Player.One | Player.Two, set: SetSummary[]): number =>
 	set.reduce((setsWon, set) => (set.setWinner === id ? setsWon + 1 : setsWon), 0)

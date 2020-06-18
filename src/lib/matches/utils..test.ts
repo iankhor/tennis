@@ -1,3 +1,2 @@
-describe('isMatchCompleted', () => {})
-
-describe('matchWinner', () => {})
+// summariseMatch
+// getMatchResult

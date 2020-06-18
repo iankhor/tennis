@@ -21,7 +21,7 @@ export const summariseTennisDraws = (draws: RawMatchData[]): SummarisedMatchData
 export const getPlayerTournamentStats = (name: PlayerName, draw: SummarisedMatchData[]) => {
 	const totalGames = totalGamesPlayed(draw)
 	const gamesWon = gamesWonByPlayerName(name, draw)
-	const gamesLoss = totalGames - gamesWon
+	const gamesLost = totalGames - gamesWon
 
-	return `${name} Stats: Games Won - ${gamesWon}, Games Loss - ${gamesLoss}`
+	return `${name} Games Stats: Won - ${gamesWon}, Lost - ${gamesLost}`
 }

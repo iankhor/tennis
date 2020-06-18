@@ -6,7 +6,7 @@
 	"scripts": {
 		"build:watch": "tsc -w",
 		"start": "tsc && node ./build/run.js",
-		"test": "tsc && jest --watch"
+		"test": "tsc && jest --watch --coverage --verbose"
 	},
 	"devDependencies": {
 		"@types/node": "^14.0.13",

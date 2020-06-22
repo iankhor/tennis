@@ -3,7 +3,7 @@ import run, { DOWN, ENTER } from 'inquirer-test'
 const SPACEBAR = '\x20'
 
 // This spec requires a rerun of jest as it relies on node and the latest compiled run.js
-const runPath = `/Users/iankhor/Documents/app/tennis/build/run.js`
+const runPath = `${process.cwd()}/build/run.js`
 const mockTournamentFilePath = `${process.cwd()}/testlib/fixtures/mock_tournament.txt`
 
 test('the app runs', async () => {
